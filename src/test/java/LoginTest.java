@@ -1,19 +1,38 @@
-import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LoginTest extends BaseTest {
-    @Test(dataProvider = "loginCredentials")
-    public void testLogin(String username, String password) {
-        loginPage.enterUsername(username);
-        loginPage.enterPassword(password);
-        loginPage.clickLoginButton();
-
-        Assert.assertTrue(loginPage.getCurrentUrl("https://parabank.parasoft.com/parabank/overview.htm"), "\n URL is incorrect \n");
-        Assert.assertTrue(loginPage.displayElement(), "\n Log Out Button is not displayed \n");
+    @Test(dataProvider = "successLoginCredentials", priority = 1)
+    public void testCorrectCredentials(String username, String password) {
+        loginSteps.login(username, password);
+        loginSteps.verifySuccessfulLogin();
     }
 
-    @DataProvider(name = "loginCredentials")
+    @Test( priority = 2)
+    public void testIncorrectUsername() {
+        loginSteps.login("1", "two");
+        loginSteps.verifyIncorrectCredentials();
+    }
+
+    @Test( priority = 3)
+    public void testIncorrectPassword() {
+        loginSteps.login("one", "2");
+        loginSteps.verifyIncorrectCredentials();
+    }
+
+    @Test( priority = 4)
+    public void testEmptyPassword() {
+        loginSteps.login("one", "");
+        loginSteps.verifyEmptyCredentials();
+    }
+
+    @Test( priority = 4)
+    public void testEmptyUsername() {
+        loginSteps.login("", "two");
+        loginSteps.verifyEmptyCredentials();
+    }
+
+    @DataProvider(name = "successLoginCredentials")
     public Object[][] loginCredentials() {
         return new Object[][]{
                 {"one", "two"}
